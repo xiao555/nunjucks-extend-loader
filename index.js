@@ -9,7 +9,7 @@ var NunjucksLoader = nunjucks.Loader.extend({
     //Based off of the Nunjucks 'FileSystemLoader' 
 
     init: function(searchPaths, sourceFoundCallback) {
-    	this.sourceFoundCallback = sourceFoundCallback;
+        this.sourceFoundCallback = sourceFoundCallback;
         if(searchPaths) {
             searchPaths = Array.isArray(searchPaths) ? searchPaths : [searchPaths];
             // For windows, convert to forward slashes
@@ -21,7 +21,7 @@ var NunjucksLoader = nunjucks.Loader.extend({
     },
 
     getSource: function(name) {
-    	var fullpath = null;
+        var fullpath = null;
         var paths = this.searchPaths;
 
         for(var i=0; i<paths.length; i++) {
@@ -43,21 +43,21 @@ var NunjucksLoader = nunjucks.Loader.extend({
         this.sourceFoundCallback(fullpath);
 
         return { 
-			src: fs.readFileSync(fullpath, 'utf-8'),
-			path: fullpath,
-			noCache: this.noCache 
-		};
+            src: fs.readFileSync(fullpath, 'utf-8'),
+            path: fullpath,
+            noCache: this.noCache 
+        };
     }
 });
 
 module.exports = function(content) {
-	this.cacheable();
+    this.cacheable();
   
-	var callback = this.async();
-	var opt = utils.parseQuery(this.query);
+    var callback = this.async();
+    var opt = utils.parseQuery(this.query);
 
-	var nunjucksSearchPaths = opt.searchPaths;
-	var nunjucksContext = opt.context;
+    var nunjucksSearchPaths = opt.searchPaths;
+    var nunjucksContext = opt.context;
     var root = opt.imgroot;
     // 处理img
     var attributes = ["img:src"];
@@ -66,7 +66,6 @@ module.exports = function(content) {
     });
     links.reverse();
     var data = {};
-    console.log('links',links); //[ { start: 108, length: 20, value: 'assets/images/bg.jpg' } ]
     // 复制文件
     function copyFile(src, dist) {
         fs.exists(dist, function(exists) {
@@ -82,15 +81,14 @@ module.exports = function(content) {
     }
     // 递归创建目录
     function mkdirs(dirpath, callback) {
-        console.log(dirpath);
         fs.exists(dirpath, function(exists) {
             if(exists) {
-                    callback();
+                callback();
             } else {
-                    mkdirs(path.dirname(dirpath), function(){
-                            fs.mkdirSync(dirpath);
-                            callback();
-                    });
+                mkdirs(path.dirname(dirpath), function(){
+                    fs.mkdirSync(dirpath);
+                    callback();
+                });
             }
         });
     }
@@ -100,35 +98,23 @@ module.exports = function(content) {
         if(!utils.isUrlRequest(link.value, root)) return;
 
         var uri = url.parse(link.value);
-        console.log('uri',uri);
         var file = path.resolve('src/' + link.value);
         var target = path.resolve('build/' + link.value);
         var dirname = path.dirname(target);
-        console.log(dirname);
         mkdirs(dirname, function(){
-            console.log("Create dir: " + dirname);
             copyFile(file, target);
         });
-        data[link.value] = link.value;
-        // var x = content.pop();
-        // content.push(x.substr(link.start + link.length));
-        // content.push(ident);
-        // content.push(x.substr(0, link.start));
-        reqfile += 'require(' + JSON.stringify(utils.urlToRequest(data[link.value], root)) + ');';
-        console.log('require(' + JSON.stringify(utils.urlToRequest(data[link.value], root)) + ')');
     });
 
+    var loader = new NunjucksLoader(nunjucksSearchPaths, function(path) {
+        this.addDependency(path);
+    }.bind(this));
+
+    var nunjEnv = new nunjucks.Environment(loader);
+    nunjucks.configure(null, { watch: false });
     
+    var template = nunjucks.compile(content, nunjEnv);
+    html = template.render(nunjucksContext);
 
-	var loader = new NunjucksLoader(nunjucksSearchPaths, function(path) {
-		this.addDependency(path);
-	}.bind(this));
-
-	var nunjEnv = new nunjucks.Environment(loader);
-	nunjucks.configure(null, { watch: false });
-	
-	var template = nunjucks.compile(content, nunjEnv);
-	html = template.render(nunjucksContext);
-
-	callback(null, html);
+    callback(null, html);
 };
