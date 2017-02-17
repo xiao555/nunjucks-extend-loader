@@ -1,0 +1,24 @@
+{
+  "name": "nunjucks-extend-loader",
+  "version": "0.0.1",
+  "description": "A webpack loader that takes nunjucks templates, render data and returns raw html.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/xiao555/nunjucks-extend-loader.git"
+  },
+  "dependencies": {
+    "loader-utils": "^0.2.16",
+    "nunjucks": "^3.0.0"
+  },
+  "keywords": [
+    "webpack",
+    "nunjucks",
+    "html"
+  ],
+  "author": "xiao555",
+  "license": "MIT"
+}
