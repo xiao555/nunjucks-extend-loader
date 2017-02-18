@@ -1,6 +1,6 @@
 {
   "name": "nunjucks-extend-loader",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "A webpack loader that takes nunjucks templates, render data and returns raw html.",
   "main": "index.js",
   "scripts": {
